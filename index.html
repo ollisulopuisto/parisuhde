@@ -10,8 +10,8 @@
             --accent: #3498db;
             --bg: #f4f7f6;
             --card: #ffffff;
-            --p1-color: #e67e22; /* Kumppani 1 */
-            --p2-color: #9b59b6; /* Kumppani 2 */
+            --p1-color: #e67e22;
+            --p2-color: #9b59b6;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -70,6 +70,7 @@
             padding: 15px;
             margin-bottom: 15px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border-left: 5px solid transparent;
         }
         .statement-text {
             font-weight: 600;
@@ -100,29 +101,26 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.9rem;
+            transition: all 0.2s;
         }
-        /* Värit valituille napeille */
         .btn-rate.p1-active { background: var(--p1-color); color: white; border-color: var(--p1-color); }
         .btn-rate.p2-active { background: var(--p2-color); color: white; border-color: var(--p2-color); }
 
-        .footer-info {
-            font-size: 0.8rem;
-            color: #7f8c8d;
+        /* Erotus-rivin tyylit */
+        .diff-row {
+            margin-top: 15px;
+            padding: 8px;
+            border-radius: 6px;
             text-align: center;
-            margin-top: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            display: none; /* Näytetään vain kun molemmat vastanneet */
         }
-        .reset-container {
-            text-align: center;
-            margin-top: 30px;
-        }
-        .btn-reset {
-            background: #e74c3c;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            opacity: 0.7;
-        }
+        .diff-visible { display: block; }
+
+        .reset-container { text-align: center; margin-top: 30px; }
+        .btn-reset { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; opacity: 0.7; }
+        .footer-info { font-size: 0.8rem; color: #7f8c8d; text-align: center; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -135,116 +133,47 @@
 
 <div class="container">
     <div id="exercise-content"></div>
-    
     <div class="reset-container">
         <button class="btn-reset" onclick="resetData()">Tyhjennä kaikki vastaukset</button>
     </div>
-    
-    <div class="footer-info">
-        Lähde: Mielenterveystalo.fi
-    </div>
+    <div class="footer-info">Lähde: Mielenterveystalo.fi</div>
 </div>
 
 <script>
+    // Sama data kuin aiemmin
     const data = [
         {
             title: "Arkinen yhteiselo",
             goal: "Kiitä puolisoa ja kannusta. Opitte huomaamaan, miten yhteistoimintanne arjessa sujuu.",
-            questions: [
-                "Pidän ruoanlaitosta ja ostosten tekemisestä.",
-                "Kun yksi laittaa ruoan, toinen korjaa pöydän ja siivoaa keittiön.",
-                "Pidän järjestyksestä ja siivoan kotiamme.",
-                "Hoidan kuljetuksia perheessä.",
-                "Kun yksi sairastaa, toinen hoitaa häntä.",
-                "Jaamme taloudellisen vastuun.",
-                "Jaamme vastuut lasten hankinnoista.",
-                "Arvostamme ruokailuhetkiä, tulemme syömään kutsuttaessa ja kiitämme.",
-                "Annan kumppanilleni huomioni ja aikaani päivittäin, edes hetken.",
-                "Osaan sanoa kiitos, kun kumppani osoittaa arvostusta.",
-                "Huomioin ääneen ne asiat, joita kumppanini tekee perheen hyväksi.",
-                "Ymmärrän, että olemme joskus vahvoja eri asioissa.",
-                "Kumppanini on hyvä lopettamaan riidan."
-            ]
+            questions: ["Pidän ruoanlaitosta ja ostosten tekemisestä.", "Kun yksi laittaa ruoan, toinen korjaa pöydän ja siivoaa keittiön.", "Pidän järjestyksestä ja siivoan kotiamme.", "Hoidan kuljetuksia perheessä.", "Kun yksi sairastaa, toinen hoitaa häntä.", "Jaamme taloudellisen vastuun.", "Jaamme vastuut lasten hankinnoista.", "Arvostamme ruokailuhetkiä, tulemme syömään kutsuttaessa ja kiitämme.", "Annan kumppanilleni huomioni ja aikaani päivittäin, edes hetken.", "Osaan sanoa kiitos, kun kumppani osoittaa arvostusta.", "Huomioin ääneen ne asiat, joita kumppanini tekee perheen hyväksi.", "Ymmärrän, että olemme joskus vahvoja eri asioissa.", "Kumppanini on hyvä lopettamaan riidan."]
         },
         {
             title: "Tarkistuslista",
             goal: "Opitte huomaamaan, minkälaisia yhteisiä arvoja arkeenne liittyy.",
-            questions: [
-                "Meidän viikoissamme on ainakin yksi kahdenkeskinen hetki.",
-                "Aikuisilla on oma yksityinen aika ja oma tila ilman häiriötä.",
-                "Emme poistu toistemme luota ilman kosketusta.",
-                "Kummankin ystäviä ja sukua mahtuu elämänpiiriimme.",
-                "Vietämme juhlapyhiä, vaikka ne olisivat vain toiselle tärkeitä.",
-                "Autan kumppaniani tekemään juhlasta juhlan.",
-                "Osoitan uskollisuuttani sanoilla ja teoilla.",
-                "Hyväksymme toistemme vanhenemisen.",
-                "Otamme vastuun omasta terveydestä ja hyvinvoinnista.",
-                "Riitojen sopiminen on parasta.",
-                "Hyvä kotiruoka, musiikki ja tunnelma tekevät kodin.",
-                "Meidän rakkautemme kasvaa, sillä me kasvatamme sitä."
-            ]
+            questions: ["Meidän viikoissamme on ainakin yksi kahdenkeskinen hetki.", "Aikuisilla on oma yksityinen aika ja oma tila ilman häiriötä.", "Emme poistu toistemme luota ilman kosketusta.", "Kummankin ystäviä ja sukua mahtuu elämänpiiriimme.", "Vietämme juhlapyhiä, vaikka ne olisivat vain toiselle tärkeitä.", "Autan kumppaniani tekemään juhlasta juhlan.", "Osoitan uskollisuuttani sanoilla ja teoilla.", "Hyväksymme toistemme vanhenemisen.", "Otamme vastuun omasta terveydestä ja hyvinvoinnista.", "Riitojen sopiminen on parasta.", "Hyvä kotiruoka, musiikki ja tunnelma tekevät kodin.", "Meidän rakkautemme kasvaa, sillä me kasvatamme sitä."]
         },
         {
             title: "Riitelytilanteet",
             goal: "Opitte huomaamaan, miten käyttäydytte riitelytilanteissa.",
-            questions: [
-                "Riita syntyy siitä, kun toinen ei kuuntele.",
-                "Keräämme suuttumusta päivän aikana ja riitelemme illalla.",
-                "Meillä voi pelkäämättä kertoa olevansa eri mieltä.",
-                "Riitelemme siitä, kumpi on oikeassa.",
-                "On asioita, joista on helppo sopia vaikka olemme eri mieltä.",
-                "Me palkitsemme toisemme hyvästä sovinnosta.",
-                "Kumppanilleni on tärkeää olla oikeassa.",
-                "Minä olen kaikkitietävä.",
-                "Lopetamme riidat sopimalla.",
-                "Olen suuttuessani ilkeä.",
-                "Kadun ilkeitä sanojani.",
-                "Meillä harjoitetaan mykkäkoulua.",
-                "Riitelemme silloin, kun emme ymmärrä toisiamme.",
-                "Osaamme joustaa ja tulla vastaan riidan aikana.",
-                "Riidan aikana huudamme, että toinen kuulisi.",
-                "Sopiessa riitaa osaamme rauhoittaa itsemme ja toisemme."
-            ]
+            questions: ["Riita syntyy siitä, kun toinen ei kuuntele.", "Keräämme suuttumusta päivän aikana ja riitelemme illalla.", "Meillä voi pelkäämättä kertoa olevansa eri mieltä.", "Riitelemme siitä, kumpi on oikeassa.", "On asioita, joista on helppo sopia vaikka olemme eri mieltä.", "Me palkitsemme toisemme hyvästä sovinnosta.", "Kumppanilleni on tärkeää olla oikeassa.", "Minä olen kaikkitietävä.", "Lopetamme riidat sopimalla.", "Olen suuttuessani ilkeä.", "Kadun ilkeitä sanojani.", "Meillä harjoitetaan mykkäkoulua.", "Riitelemme silloin, kun emme ymmärrä toisiamme.", "Osaamme joustaa ja tulla vastaan riidan aikana.", "Riidan aikana huudamme, että toinen kuulisi.", "Sopiessa riitaa osaamme rauhoittaa itsemme ja toisemme."]
         },
         {
             title: "Tukipylväät",
             goal: "Huomaatte, mitä parisuhteen tukipylväitä pidätte tärkeinä.",
-            questions: [
-                "Arvostamme yhteistä aikaa.",
-                "Molemmat hoidamme asioita toistemme hyväksi.",
-                "Tiedän, miten kumppani voi ja mitä hänelle kuuluu.",
-                "Suhteessamme on enemmän hyviä kuin huonoja päiviä.",
-                "Arvostamme kotiamme.",
-                "Viikonloppumme ovat rentouttavia.",
-                "Autan, tuen, kannustan ja pyydän tukea.",
-                "Tunnen kumppanini ja välitän hänen asioistaan.",
-                "Lopetamme riidat sopimalla.",
-                "Arvostamme keskinäistä hellyyttä.",
-                "Elämäämme kuuluu iloa ja naurua.",
-                "Olemme uskollisia.",
-                "Olemme toisillemme rehellisiä.",
-                "Saamme yhdessä arjen sujumaan.",
-                "Arvostamme toisiamme.",
-                "Molempien mielipiteitä kuunnellaan.",
-                "Meillä saa itkeä ja nauraa.",
-                "Viehätymme toisistamme."
-            ]
+            questions: ["Arvostamme yhteistä aikaa.", "Molemmat hoidamme asioita toistemme hyväksi.", "Tiedän, miten kumppani voi ja mitä hänelle kuuluu.", "Suhteessamme on enemmän hyviä kuin huonoja päiviä.", "Arvostamme kotiamme.", "Viikonloppumme ovat rentouttavia.", "Autan, tuen, kannustan ja pyydän tukea.", "Tunnen kumppanini ja välitän hänen asioistaan.", "Lopetamme riidat sopimalla.", "Arvostamme keskinäistä hellyyttä.", "Elämäämme kuuluu iloa ja naurua.", "Olemme uskollisia.", "Olemme toisillemme rehellisiä.", "Saamme yhdessä arjen sujumaan.", "Arvostamme toisiamme.", "Molempien mielipiteitä kuunnellaan.", "Meillä saa itkeä ja nauraa.", "Viehätymme toisistamme."]
         }
     ];
 
     let currentEx = 0;
     let scores = JSON.parse(localStorage.getItem('parisuhde_data')) || {};
 
-    function init() {
-        const menu = document.getElementById('menu');
-        data.forEach((ex, idx) => {
-            const btn = document.createElement('button');
-            btn.innerText = ex.title;
-            btn.onclick = () => loadExercise(idx);
-            btn.id = `nav-btn-${idx}`;
-            menu.appendChild(btn);
-        });
-        loadExercise(0);
+    function getDiffStyle(diff) {
+        // diff on välillä 0-4
+        if (diff === 0) return { bg: '#d4edda', text: '#155724', label: 'Täysin sama näkemys (0)' };
+        if (diff === 1) return { bg: '#f9f9e0', text: '#856404', label: 'Pieni ero (1)' };
+        if (diff === 2) return { bg: '#fff3cd', text: '#856404', label: 'Näkemysero (2)' };
+        if (diff === 3) return { bg: '#f8d7da', text: '#721c24', label: 'Suuri ero (3)' };
+        return { bg: '#f5c6cb', text: '#721c24', label: 'Erittäin suuri ero (4)' };
     }
 
     function loadExercise(idx) {
@@ -253,18 +182,20 @@
         document.getElementById(`nav-btn-${idx}`).classList.add('active');
         
         const ex = data[idx];
-        let html = `
-            <div class="intro">
-                <strong>Tavoite:</strong> ${ex.goal}<br><br>
-                <em>Arvioikaa asteikolla 1-5 (1 = heikko, 5 = erinomainen).</em>
-            </div>
-        `;
+        let html = `<div class="intro"><strong>Tavoite:</strong> ${ex.goal}</div>`;
 
         ex.questions.forEach((q, qIdx) => {
-            const keyP1 = `ex${idx}_q${qIdx}_p1`;
-            const keyP2 = `ex${idx}_q${qIdx}_p2`;
-            const valP1 = scores[keyP1] || 0;
-            const valP2 = scores[keyP2] || 0;
+            const valP1 = scores[`ex${idx}_q${qIdx}_p1`] || null;
+            const valP2 = scores[`ex${idx}_q${qIdx}_p2`] || null;
+            
+            let diffHtml = '';
+            if (valP1 !== null && valP2 !== null) {
+                const diff = Math.abs(valP1 - valP2);
+                const style = getDiffStyle(diff);
+                diffHtml = `<div class="diff-row diff-visible" style="background-color: ${style.bg}; color: ${style.text};">
+                    Eroavaisuus: ${style.label}
+                </div>`;
+            }
 
             html += `
                 <div class="card">
@@ -287,30 +218,37 @@
                             `).join('')}
                         </div>
                     </div>
+                    ${diffHtml}
                 </div>
             `;
         });
         document.getElementById('exercise-content').innerHTML = html;
-        window.scrollTo(0,0);
     }
 
     function rate(exIdx, qIdx, person, value) {
-        const key = `ex${exIdx}_q${qIdx}_${person}`;
-        scores[key] = value;
+        scores[`ex${exIdx}_q${qIdx}_${person}`] = value;
         localStorage.setItem('parisuhde_data', JSON.stringify(scores));
-        loadExercise(exIdx); // Refresh UI
+        loadExercise(exIdx);
     }
 
     function resetData() {
         if(confirm("Haluatko varmasti tyhjentää kaikki vastaukset?")) {
-            scores = {};
-            localStorage.removeItem('parisuhde_data');
-            loadExercise(currentEx);
+            scores = {}; localStorage.removeItem('parisuhde_data'); loadExercise(currentEx);
         }
     }
 
+    function init() {
+        const menu = document.getElementById('menu');
+        data.forEach((ex, idx) => {
+            const btn = document.createElement('button');
+            btn.innerText = ex.title;
+            btn.onclick = () => loadExercise(idx);
+            btn.id = `nav-btn-${idx}`;
+            menu.appendChild(btn);
+        });
+        loadExercise(0);
+    }
     init();
 </script>
-
 </body>
 </html>
