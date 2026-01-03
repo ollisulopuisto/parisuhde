@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parisuhteen Työkalupakki</title>
+    <title>Parisuhteen työkalupakki</title>
     <style>
         :root {
             --primary: #2c3e50;
@@ -38,6 +38,7 @@
             padding: 0.5rem;
             gap: 10px;
             border-bottom: 1px solid #ddd;
+            -webkit-overflow-scrolling: touch;
         }
         nav button {
             white-space: nowrap;
@@ -47,6 +48,7 @@
             background: transparent;
             color: var(--accent);
             cursor: pointer;
+            font-size: 0.9rem;
         }
         nav button.active {
             background: var(--accent);
@@ -63,6 +65,7 @@
             border-radius: 8px;
             margin-bottom: 20px;
             font-size: 0.9rem;
+            border-left: 4px solid var(--accent);
         }
         .card {
             background: var(--card);
@@ -70,7 +73,6 @@
             padding: 15px;
             margin-bottom: 15px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-left: 5px solid transparent;
         }
         .statement-text {
             font-weight: 600;
@@ -95,38 +97,36 @@
         }
         .btn-rate {
             flex: 1;
-            padding: 10px 0;
+            padding: 12px 0;
             border: 1px solid #ddd;
             background: #fff;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            font-size: 1rem;
+            transition: background 0.2s, color 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
         .btn-rate.p1-active { background: var(--p1-color); color: white; border-color: var(--p1-color); }
         .btn-rate.p2-active { background: var(--p2-color); color: white; border-color: var(--p2-color); }
 
-        /* Erotus-rivin tyylit */
         .diff-row {
             margin-top: 15px;
-            padding: 8px;
+            padding: 10px;
             border-radius: 6px;
             text-align: center;
             font-size: 0.85rem;
             font-weight: bold;
-            display: none; /* Näytetään vain kun molemmat vastanneet */
         }
-        .diff-visible { display: block; }
 
         .reset-container { text-align: center; margin-top: 30px; }
-        .btn-reset { background: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; opacity: 0.7; }
-        .footer-info { font-size: 0.8rem; color: #7f8c8d; text-align: center; margin-top: 20px; }
+        .btn-reset { background: #e74c3c; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .footer-info { font-size: 0.8rem; color: #7f8c8d; text-align: center; margin-top: 20px; padding-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <header>
-    <h3 id="app-title">Parisuhteen työkalut</h3>
+    <h3>Parisuhteen työkalut</h3>
 </header>
 
 <nav id="menu"></nav>
@@ -140,27 +140,26 @@
 </div>
 
 <script>
-    // Sama data kuin aiemmin
     const data = [
         {
             title: "Arkinen yhteiselo",
-            goal: "Kiitä puolisoa ja kannusta. Opitte huomaamaan, miten yhteistoimintanne arjessa sujuu.",
-            questions: ["Pidän ruoanlaitosta ja ostosten tekemisestä.", "Kun yksi laittaa ruoan, toinen korjaa pöydän ja siivoaa keittiön.", "Pidän järjestyksestä ja siivoan kotiamme.", "Hoidan kuljetuksia perheessä.", "Kun yksi sairastaa, toinen hoitaa häntä.", "Jaamme taloudellisen vastuun.", "Jaamme vastuut lasten hankinnoista.", "Arvostamme ruokailuhetkiä, tulemme syömään kutsuttaessa ja kiitämme.", "Annan kumppanilleni huomioni ja aikaani päivittäin, edes hetken.", "Osaan sanoa kiitos, kun kumppani osoittaa arvostusta.", "Huomioin ääneen ne asiat, joita kumppanini tekee perheen hyväksi.", "Ymmärrän, että olemme joskus vahvoja eri asioissa.", "Kumppanini on hyvä lopettamaan riidan."]
+            goal: "Kiitä puolisoa ja kannusta. Opitte huomaamaan, miten yhteistoimintanne arjessa sujuu ja missä olisi parantamisen varaa[cite: 6].",
+            questions: ["Pidän ruoanlaitosta ja ostosten tekemisestä [cite: 12].", "Kun yksi laittaa ruoan, toinen korjaa pöydän ja siivoaa keittiön [cite: 12].", "Pidän järjestyksestä ja siivoan kotiamme [cite: 12].", "Hoidan kuljetuksia perheessä [cite: 12].", "Kun yksi sairastaa, toinen hoitaa häntä [cite: 12].", "Jaamme taloudellisen vastuun [cite: 12].", "Jaamme vastuut lasten hankinnoista [cite: 12].", "Arvostamme ruokailuhetkiä, tulemme syömään kutsuttaessa ja kiitämme [cite: 12].", "Annan kumppanilleni huomioni ja aikaani päivittäin, edes hetken [cite: 12].", "Osaan sanoa kiitos, kun kumppani osoittaa arvostusta minua ja parisuhdetta kohtaan [cite: 15].", "Huomioin ääneen ne asiat, joita kumppanini tekee minun ja perheen hyväksi [cite: 15].", "Ymmärrän, että me olemme joskus vahvoja eri asioissa [cite: 15].", "Kumppanini on hyvä lopettamaan riidan[cite: 15]."]
         },
         {
             title: "Tarkistuslista",
-            goal: "Opitte huomaamaan, minkälaisia yhteisiä arvoja arkeenne liittyy.",
-            questions: ["Meidän viikoissamme on ainakin yksi kahdenkeskinen hetki.", "Aikuisilla on oma yksityinen aika ja oma tila ilman häiriötä.", "Emme poistu toistemme luota ilman kosketusta.", "Kummankin ystäviä ja sukua mahtuu elämänpiiriimme.", "Vietämme juhlapyhiä, vaikka ne olisivat vain toiselle tärkeitä.", "Autan kumppaniani tekemään juhlasta juhlan.", "Osoitan uskollisuuttani sanoilla ja teoilla.", "Hyväksymme toistemme vanhenemisen.", "Otamme vastuun omasta terveydestä ja hyvinvoinnista.", "Riitojen sopiminen on parasta.", "Hyvä kotiruoka, musiikki ja tunnelma tekevät kodin.", "Meidän rakkautemme kasvaa, sillä me kasvatamme sitä."]
+            goal: "Opitte huomaamaan, minkälaisia yhteisiä arvoja arkeenne liittyy ja missä mahdollisesti olisi parantamisen varaa[cite: 27].",
+            questions: ["Meidän viikoissamme on ainakin yksi kahdenkeskinen hetki [cite: 32].", "Aikuisilla on oma yksityinen aika ja oma tila ilman häiriötä [cite: 32].", "Emme poistu toistemme luota ilman kosketusta [cite: 32].", "Kummankin ystäviä ja sukua mahtuu elämänpiiriimme [cite: 32].", "Vietämme juhlapyhiä, vaikka ne olisivat vain toiselle tärkeitä [cite: 32].", "Autan kumppaniani tekemään juhlasta juhlan [cite: 32].", "Osoitan uskollisuuttani sanoilla ja teoilla [cite: 32].", "Hyväksymme toistemme vanhenemisen [cite: 32].", "Otamme vastuun omasta terveydestä ja hyvinvoinnista [cite: 32].", "Riitojen sopiminen on parasta [cite: 32].", "Hyvä kotiruoka, musiikki ja tunnelma tekevät kodin [cite: 32].", "Meidän rakkautemme kasvaa, sillä me kasvatamme sitä[cite: 32]."]
         },
         {
             title: "Riitelytilanteet",
-            goal: "Opitte huomaamaan, miten käyttäydytte riitelytilanteissa.",
-            questions: ["Riita syntyy siitä, kun toinen ei kuuntele.", "Keräämme suuttumusta päivän aikana ja riitelemme illalla.", "Meillä voi pelkäämättä kertoa olevansa eri mieltä.", "Riitelemme siitä, kumpi on oikeassa.", "On asioita, joista on helppo sopia vaikka olemme eri mieltä.", "Me palkitsemme toisemme hyvästä sovinnosta.", "Kumppanilleni on tärkeää olla oikeassa.", "Minä olen kaikkitietävä.", "Lopetamme riidat sopimalla.", "Olen suuttuessani ilkeä.", "Kadun ilkeitä sanojani.", "Meillä harjoitetaan mykkäkoulua.", "Riitelemme silloin, kun emme ymmärrä toisiamme.", "Osaamme joustaa ja tulla vastaan riidan aikana.", "Riidan aikana huudamme, että toinen kuulisi.", "Sopiessa riitaa osaamme rauhoittaa itsemme ja toisemme."]
+            goal: "Korjaava keskustelu riitelemisestä. Opitte huomaamaan, miten käyttäydytte riitelytilanteissa ja mistä riidat kumpuavat[cite: 46].",
+            questions: ["Riita syntyy siitä, kun toinen ei kuuntele [cite: 52].", "Keräämme suuttumusta päivän aikana ja riitelemme illalla [cite: 52].", "Meillä voi pelkäämättä kertoa olevansa eri mieltä [cite: 52].", "Riitelemme siitä, kumpi on oikeassa [cite: 52].", "On joitakin asioita, joista meidän on helppo sopia vaikka olemme eri mieltä [cite: 52].", "Me palkitsemme toisemme hyvästä sovinnosta [cite: 52].", "Kumppanilleni on tärkeää olla oikeassa [cite: 52].", "Minä olen kaikkitietävä [cite: 52].", "Lopetamme riidat sopimalla [cite: 52].", "Olen suuttuessani ilkeä [cite: 52].", "Kadun ilkeitä sanojani [cite: 52].", "Meillä harjoitetaan mykkäkoulua [cite: 52].", "Riitelemme silloin, kun emme ymmärrä toisiamme [cite: 55].", "Me osaamme joustaa ja tulla toista vastaan riidan aikana [cite: 55].", "Riidan aikana huudamme mielipiteemme, että toinen kuulisi ja ymmärtäisi [cite: 55].", "Sopiessa riitaa osaamme rauhoittaa itsemme ja toisemme[cite: 55]."]
         },
         {
             title: "Tukipylväät",
-            goal: "Huomaatte, mitä parisuhteen tukipylväitä pidätte tärkeinä.",
-            questions: ["Arvostamme yhteistä aikaa.", "Molemmat hoidamme asioita toistemme hyväksi.", "Tiedän, miten kumppani voi ja mitä hänelle kuuluu.", "Suhteessamme on enemmän hyviä kuin huonoja päiviä.", "Arvostamme kotiamme.", "Viikonloppumme ovat rentouttavia.", "Autan, tuen, kannustan ja pyydän tukea.", "Tunnen kumppanini ja välitän hänen asioistaan.", "Lopetamme riidat sopimalla.", "Arvostamme keskinäistä hellyyttä.", "Elämäämme kuuluu iloa ja naurua.", "Olemme uskollisia.", "Olemme toisillemme rehellisiä.", "Saamme yhdessä arjen sujumaan.", "Arvostamme toisiamme.", "Molempien mielipiteitä kuunnellaan.", "Meillä saa itkeä ja nauraa.", "Viehätymme toisistamme."]
+            goal: "Huomaatte, mitä parisuhteen tukipylväitä pidätte tärkeinä ja missä olisi parantamisen varaa[cite: 68].",
+            questions: ["Arvostamme yhteistä aikaa [cite: 73].", "Me molemmat hoidamme asioita toistemme hyväksi ja toistemme puolesta [cite: 73].", "Tiedän, miten kumppani voi ja tiedän, mitä hänelle kuuluu [cite: 73].", "Suhteessamme on enemmän hyviä kuin huonoja päiviä [cite: 73].", "Arvostamme kotiamme [cite: 73].", "Viikonloppumme ovat rentouttavia [cite: 73].", "Autan, tuen, kannustan ja pyydän itsellenikin tukea [cite: 73].", "Tunnen kumppanini ja välitän hänen asioistaan [cite: 73].", "Lopetamme riidat sopimalla [cite: 73].", "Arvostamme keskinäistä hellyyttä ja varaamme sille omaa aikaa [cite: 73].", "Elämäämme kuuluu iloa ja naurua [cite: 73].", "Olemme uskollisia [cite: 73].", "Olemme toisillemme rehellisiä [cite: 76].", "Saamme yhdessä arjen sujumaan [cite: 76].", "Arvostamme toisiamme [cite: 76].", "Molempien mielipiteitä kuunnellaan [cite: 76].", "Meillä saa itkeä ja nauraa [cite: 76].", "Viehätymme toisistamme[cite: 76]."]
         }
     ];
 
@@ -168,8 +167,7 @@
     let scores = JSON.parse(localStorage.getItem('parisuhde_data')) || {};
 
     function getDiffStyle(diff) {
-        // diff on välillä 0-4
-        if (diff === 0) return { bg: '#d4edda', text: '#155724', label: 'Täysin sama näkemys (0)' };
+        if (diff === 0) return { bg: '#d4edda', text: '#155724', label: 'Täysin sama (0)' };
         if (diff === 1) return { bg: '#f9f9e0', text: '#856404', label: 'Pieni ero (1)' };
         if (diff === 2) return { bg: '#fff3cd', text: '#856404', label: 'Näkemysero (2)' };
         if (diff === 3) return { bg: '#f8d7da', text: '#721c24', label: 'Suuri ero (3)' };
@@ -179,10 +177,11 @@
     function loadExercise(idx) {
         currentEx = idx;
         document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        document.getElementById(`nav-btn-${idx}`).classList.add('active');
+        const activeBtn = document.getElementById(`nav-btn-${idx}`);
+        if(activeBtn) activeBtn.classList.add('active');
         
         const ex = data[idx];
-        let html = `<div class="intro"><strong>Tavoite:</strong> ${ex.goal}</div>`;
+        let html = `<div class="intro"><strong>Tavoite:</strong> ${ex.goal}<br><br><em>Arvioikaa asteikolla 1-5[cite: 8, 29, 48, 70]. Jos arvosana on alle 3, käykää korjaava keskustelu[cite: 17, 36, 57, 81].</em></div>`;
 
         ex.questions.forEach((q, qIdx) => {
             const valP1 = scores[`ex${idx}_q${qIdx}_p1`] || null;
@@ -192,9 +191,7 @@
             if (valP1 !== null && valP2 !== null) {
                 const diff = Math.abs(valP1 - valP2);
                 const style = getDiffStyle(diff);
-                diffHtml = `<div class="diff-row diff-visible" style="background-color: ${style.bg}; color: ${style.text};">
-                    Eroavaisuus: ${style.label}
-                </div>`;
+                diffHtml = `<div class="diff-row" style="background-color: ${style.bg}; color: ${style.text};">Eroavaisuus: ${style.label}</div>`;
             }
 
             html += `
@@ -203,19 +200,13 @@
                     <div class="rating-group">
                         <div class="label">M:</div>
                         <div class="buttons">
-                            ${[1,2,3,4,5].map(n => `
-                                <button class="btn-rate ${valP1 == n ? 'p1-active' : ''}" 
-                                    onclick="rate(${idx}, ${qIdx}, 'p1', ${n})">${n}</button>
-                            `).join('')}
+                            ${[1,2,3,4,5].map(n => `<button class="btn-rate ${valP1 == n ? 'p1-active' : ''}" onclick="rate(${idx}, ${qIdx}, 'p1', ${n})">${n}</button>`).join('')}
                         </div>
                     </div>
                     <div class="rating-group">
                         <div class="label">N:</div>
                         <div class="buttons">
-                            ${[1,2,3,4,5].map(n => `
-                                <button class="btn-rate ${valP2 == n ? 'p2-active' : ''}" 
-                                    onclick="rate(${idx}, ${qIdx}, 'p2', ${n})">${n}</button>
-                            `).join('')}
+                            ${[1,2,3,4,5].map(n => `<button class="btn-rate ${valP2 == n ? 'p2-active' : ''}" onclick="rate(${idx}, ${qIdx}, 'p2', ${n})">${n}</button>`).join('')}
                         </div>
                     </div>
                     ${diffHtml}
@@ -226,7 +217,12 @@
     }
 
     function rate(exIdx, qIdx, person, value) {
-        scores[`ex${exIdx}_q${qIdx}_${person}`] = value;
+        const key = `ex${exIdx}_q${qIdx}_${person}`;
+        if (scores[key] === value) {
+            delete scores[key]; // Peruutetaan valinta, jos painetaan uudelleen
+        } else {
+            scores[key] = value;
+        }
         localStorage.setItem('parisuhde_data', JSON.stringify(scores));
         loadExercise(exIdx);
     }
