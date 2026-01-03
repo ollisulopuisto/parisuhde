@@ -3,248 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parisuhteen työkalupakki</title>
+    <title>Parisuhteen työkalut - Talviversio</title>
     <style>
         :root {
             --primary: #2c3e50;
             --accent: #3498db;
             --bg: #f4f7f6;
             --card: #ffffff;
+            --focus-bg: #fff9c4; /* Keltainen korostus aktiiviselle riville */
             --p1-color: #e67e22;
             --p2-color: #9b59b6;
         }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: sans-serif;
             background-color: var(--bg);
-            color: var(--primary);
-            line-height: 1.6;
             margin: 0;
             padding: 0;
+            user-select: none;
         }
         header {
             background: var(--primary);
             color: white;
-            padding: 1rem;
+            padding: 10px;
             text-align: center;
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        nav {
-            display: flex;
-            overflow-x: auto;
-            background: #fff;
-            padding: 0.5rem;
-            gap: 10px;
-            border-bottom: 1px solid #ddd;
-            -webkit-overflow-scrolling: touch;
-        }
-        nav button {
-            white-space: nowrap;
-            padding: 8px 15px;
-            border-radius: 20px;
-            border: 1px solid var(--accent);
-            background: transparent;
-            color: var(--accent);
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        nav button.active {
-            background: var(--accent);
+        .instruction-overlay {
+            background: #27ae60;
             color: white;
+            padding: 10px;
+            font-size: 0.8rem;
+            text-align: center;
         }
         .container {
             max-width: 600px;
-            margin: 15px auto;
-            padding: 0 15px 100px 15px;
-        }
-        .intro {
-            background: #e8f4fd;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            border-left: 4px solid var(--accent);
+            margin: 0 auto;
+            padding: 10px 10px 150px 10px;
         }
         .card {
             background: var(--card);
             border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+        }
+        .card.active-card {
+            border-color: var(--accent);
         }
         .statement-text {
-            font-weight: 600;
-            margin-bottom: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 20px;
             display: block;
         }
         .rating-group {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 5px 0;
         }
-        .label {
-            width: 30px;
-            font-weight: bold;
-            font-size: 0.8rem;
+        .rating-group.active-focus {
+            background-color: var(--focus-bg);
+            outline: 2px solid #f1c40f;
         }
-        .buttons {
-            display: flex;
-            flex: 1;
-            justify-content: space-between;
-            gap: 5px;
-        }
+        .label { width: 40px; font-weight: bold; }
+        .buttons { display: flex; flex: 1; justify-content: space-between; }
         .btn-rate {
             flex: 1;
-            padding: 12px 0;
+            margin: 0 2px;
+            padding: 15px 0;
             border: 1px solid #ddd;
             background: #fff;
             border-radius: 6px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background 0.2s, color 0.2s;
-            -webkit-tap-highlight-color: transparent;
+            font-size: 1.2rem;
         }
-        .btn-rate.p1-active { background: var(--p1-color); color: white; border-color: var(--p1-color); }
-        .btn-rate.p2-active { background: var(--p2-color); color: white; border-color: var(--p2-color); }
-
+        .btn-rate.p1-active { background: var(--p1-color); color: white; }
+        .btn-rate.p2-active { background: var(--p2-color); color: white; }
+        
         .diff-row {
             margin-top: 15px;
             padding: 10px;
             border-radius: 6px;
             text-align: center;
-            font-size: 0.85rem;
             font-weight: bold;
         }
-
-        .reset-container { text-align: center; margin-top: 30px; }
-        .btn-reset { background: #e74c3c; color: white; border: none; padding: 12px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        .footer-info { font-size: 0.8rem; color: #7f8c8d; text-align: center; margin-top: 20px; padding-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <header>
-    <h3>Parisuhteen työkalut</h3>
+    <h3 id="nav-title">Arkinen yhteiselo</h3>
 </header>
-
-<nav id="menu"></nav>
-
-<div class="container">
-    <div id="exercise-content"></div>
-    <div class="reset-container">
-        <button class="btn-reset" onclick="resetData()">Tyhjennä kaikki vastaukset</button>
-    </div>
-    <div class="footer-info">Lähde: Mielenterveystalo.fi</div>
+<div class="instruction-overlay">
+    HANSKAT KÄDESSÄ: Vol+ = Muuta arvoa | Vol- = Seuraava vaihe
 </div>
 
+<div class="container" id="app">
+    </div>
+
 <script>
-    const data = [
-        {
-            title: "Arkinen yhteiselo",
-            goal: "Kiitä puolisoa ja kannusta. Opitte huomaamaan, miten yhteistoimintanne arjessa sujuu ja missä olisi parantamisen varaa[cite: 6].",
-            questions: ["Pidän ruoanlaitosta ja ostosten tekemisestä [cite: 12].", "Kun yksi laittaa ruoan, toinen korjaa pöydän ja siivoaa keittiön [cite: 12].", "Pidän järjestyksestä ja siivoan kotiamme [cite: 12].", "Hoidan kuljetuksia perheessä [cite: 12].", "Kun yksi sairastaa, toinen hoitaa häntä [cite: 12].", "Jaamme taloudellisen vastuun [cite: 12].", "Jaamme vastuut lasten hankinnoista [cite: 12].", "Arvostamme ruokailuhetkiä, tulemme syömään kutsuttaessa ja kiitämme [cite: 12].", "Annan kumppanilleni huomioni ja aikaani päivittäin, edes hetken [cite: 12].", "Osaan sanoa kiitos, kun kumppani osoittaa arvostusta minua ja parisuhdetta kohtaan [cite: 15].", "Huomioin ääneen ne asiat, joita kumppanini tekee minun ja perheen hyväksi [cite: 15].", "Ymmärrän, että me olemme joskus vahvoja eri asioissa [cite: 15].", "Kumppanini on hyvä lopettamaan riidan[cite: 15]."]
-        },
-        {
-            title: "Tarkistuslista",
-            goal: "Opitte huomaamaan, minkälaisia yhteisiä arvoja arkeenne liittyy ja missä mahdollisesti olisi parantamisen varaa[cite: 27].",
-            questions: ["Meidän viikoissamme on ainakin yksi kahdenkeskinen hetki [cite: 32].", "Aikuisilla on oma yksityinen aika ja oma tila ilman häiriötä [cite: 32].", "Emme poistu toistemme luota ilman kosketusta [cite: 32].", "Kummankin ystäviä ja sukua mahtuu elämänpiiriimme [cite: 32].", "Vietämme juhlapyhiä, vaikka ne olisivat vain toiselle tärkeitä [cite: 32].", "Autan kumppaniani tekemään juhlasta juhlan [cite: 32].", "Osoitan uskollisuuttani sanoilla ja teoilla [cite: 32].", "Hyväksymme toistemme vanhenemisen [cite: 32].", "Otamme vastuun omasta terveydestä ja hyvinvoinnista [cite: 32].", "Riitojen sopiminen on parasta [cite: 32].", "Hyvä kotiruoka, musiikki ja tunnelma tekevät kodin [cite: 32].", "Meidän rakkautemme kasvaa, sillä me kasvatamme sitä[cite: 32]."]
-        },
-        {
-            title: "Riitelytilanteet",
-            goal: "Korjaava keskustelu riitelemisestä. Opitte huomaamaan, miten käyttäydytte riitelytilanteissa ja mistä riidat kumpuavat[cite: 46].",
-            questions: ["Riita syntyy siitä, kun toinen ei kuuntele [cite: 52].", "Keräämme suuttumusta päivän aikana ja riitelemme illalla [cite: 52].", "Meillä voi pelkäämättä kertoa olevansa eri mieltä [cite: 52].", "Riitelemme siitä, kumpi on oikeassa [cite: 52].", "On joitakin asioita, joista meidän on helppo sopia vaikka olemme eri mieltä [cite: 52].", "Me palkitsemme toisemme hyvästä sovinnosta [cite: 52].", "Kumppanilleni on tärkeää olla oikeassa [cite: 52].", "Minä olen kaikkitietävä [cite: 52].", "Lopetamme riidat sopimalla [cite: 52].", "Olen suuttuessani ilkeä [cite: 52].", "Kadun ilkeitä sanojani [cite: 52].", "Meillä harjoitetaan mykkäkoulua [cite: 52].", "Riitelemme silloin, kun emme ymmärrä toisiamme [cite: 55].", "Me osaamme joustaa ja tulla toista vastaan riidan aikana [cite: 55].", "Riidan aikana huudamme mielipiteemme, että toinen kuulisi ja ymmärtäisi [cite: 55].", "Sopiessa riitaa osaamme rauhoittaa itsemme ja toisemme[cite: 55]."]
-        },
-        {
-            title: "Tukipylväät",
-            goal: "Huomaatte, mitä parisuhteen tukipylväitä pidätte tärkeinä ja missä olisi parantamisen varaa[cite: 68].",
-            questions: ["Arvostamme yhteistä aikaa [cite: 73].", "Me molemmat hoidamme asioita toistemme hyväksi ja toistemme puolesta [cite: 73].", "Tiedän, miten kumppani voi ja tiedän, mitä hänelle kuuluu [cite: 73].", "Suhteessamme on enemmän hyviä kuin huonoja päiviä [cite: 73].", "Arvostamme kotiamme [cite: 73].", "Viikonloppumme ovat rentouttavia [cite: 73].", "Autan, tuen, kannustan ja pyydän itsellenikin tukea [cite: 73].", "Tunnen kumppanini ja välitän hänen asioistaan [cite: 73].", "Lopetamme riidat sopimalla [cite: 73].", "Arvostamme keskinäistä hellyyttä ja varaamme sille omaa aikaa [cite: 73].", "Elämäämme kuuluu iloa ja naurua [cite: 73].", "Olemme uskollisia [cite: 73].", "Olemme toisillemme rehellisiä [cite: 76].", "Saamme yhdessä arjen sujumaan [cite: 76].", "Arvostamme toisiamme [cite: 76].", "Molempien mielipiteitä kuunnellaan [cite: 76].", "Meillä saa itkeä ja nauraa [cite: 76].", "Viehätymme toisistamme[cite: 76]."]
-        }
+    // Lyhennetty data-esimerkki (käytä aiempaa täyttä dataa tässä)
+    const exercises = [
+        { title: "Arkinen yhteiselo", q: ["Pidän ruoanlaitosta.", "Siivoamme yhdessä.", "Hoidan kuljetuksia.", "Autamme sairaana.", "Jaamme talouden."] },
+        { title: "Tarkistuslista", q: ["Kahdenkeskinen hetki.", "Oma aika.", "Kosketus lähtiessä.", "Ystävät mahtuvat mukaan."] }
     ];
 
-    let currentEx = 0;
-    let scores = JSON.parse(localStorage.getItem('parisuhde_data')) || {};
+    let currentExIdx = 0;
+    let currentQIdx = 0;
+    let focusPerson = 'p1'; // 'p1' tai 'p2'
+    let scores = JSON.parse(localStorage.getItem('parisuhde_v3')) || {};
 
-    function getDiffStyle(diff) {
-        if (diff === 0) return { bg: '#d4edda', text: '#155724', label: 'Täysin sama (0)' };
-        if (diff === 1) return { bg: '#f9f9e0', text: '#856404', label: 'Pieni ero (1)' };
-        if (diff === 2) return { bg: '#fff3cd', text: '#856404', label: 'Näkemysero (2)' };
-        if (diff === 3) return { bg: '#f8d7da', text: '#721c24', label: 'Suuri ero (3)' };
-        return { bg: '#f5c6cb', text: '#721c24', label: 'Erittäin suuri ero (4)' };
-    }
-
-    function loadExercise(idx) {
-        currentEx = idx;
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        const activeBtn = document.getElementById(`nav-btn-${idx}`);
-        if(activeBtn) activeBtn.classList.add('active');
+    function render() {
+        const ex = exercises[currentExIdx];
+        document.getElementById('nav-title').innerText = ex.title;
         
-        const ex = data[idx];
-        let html = `<div class="intro"><strong>Tavoite:</strong> ${ex.goal}<br><br><em>Arvioikaa asteikolla 1-5[cite: 8, 29, 48, 70]. Jos arvosana on alle 3, käykää korjaava keskustelu[cite: 17, 36, 57, 81].</em></div>`;
-
-        ex.questions.forEach((q, qIdx) => {
-            const valP1 = scores[`ex${idx}_q${qIdx}_p1`] || null;
-            const valP2 = scores[`ex${idx}_q${qIdx}_p2`] || null;
+        let html = '';
+        ex.q.forEach((text, i) => {
+            const valP1 = scores[`ex${currentExIdx}_q${i}_p1`] || '-';
+            const valP2 = scores[`ex${currentExIdx}_q${i}_p2`] || '-';
+            const isActiveCard = (i === currentQIdx);
             
-            let diffHtml = '';
-            if (valP1 !== null && valP2 !== null) {
-                const diff = Math.abs(valP1 - valP2);
-                const style = getDiffStyle(diff);
-                diffHtml = `<div class="diff-row" style="background-color: ${style.bg}; color: ${style.text};">Eroavaisuus: ${style.label}</div>`;
-            }
-
             html += `
-                <div class="card">
-                    <span class="statement-text">${q}</span>
-                    <div class="rating-group">
+                <div class="card ${isActiveCard ? 'active-card' : ''}" id="q${i}">
+                    <span class="statement-text">${text}</span>
+                    <div class="rating-group ${isActiveCard && focusPerson === 'p1' ? 'active-focus' : ''}">
                         <div class="label">M:</div>
                         <div class="buttons">
-                            ${[1,2,3,4,5].map(n => `<button class="btn-rate ${valP1 == n ? 'p1-active' : ''}" onclick="rate(${idx}, ${qIdx}, 'p1', ${n})">${n}</button>`).join('')}
+                            ${[1,2,3,4,5].map(n => `<div class="btn-rate ${valP1 == n ? 'p1-active' : ''}">${n}</div>`).join('')}
                         </div>
                     </div>
-                    <div class="rating-group">
+                    <div class="rating-group ${isActiveCard && focusPerson === 'p2' ? 'active-focus' : ''}">
                         <div class="label">N:</div>
                         <div class="buttons">
-                            ${[1,2,3,4,5].map(n => `<button class="btn-rate ${valP2 == n ? 'p2-active' : ''}" onclick="rate(${idx}, ${qIdx}, 'p2', ${n})">${n}</button>`).join('')}
+                            ${[1,2,3,4,5].map(n => `<div class="btn-rate ${valP2 == n ? 'p2-active' : ''}">${n}</div>`).join('')}
                         </div>
                     </div>
-                    ${diffHtml}
                 </div>
             `;
         });
-        document.getElementById('exercise-content').innerHTML = html;
+        document.getElementById('app').innerHTML = html;
+        
+        // Automaattinen skrollaus aktiiviseen kysymykseen
+        const activeEl = document.getElementById(`q${currentQIdx}`);
+        if(activeEl) activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
-    function rate(exIdx, qIdx, person, value) {
-        const key = `ex${exIdx}_q${qIdx}_${person}`;
-        if (scores[key] === value) {
-            delete scores[key]; // Peruutetaan valinta, jos painetaan uudelleen
+    // ÄÄNENVOIMAKKUUSNÄPPÄINTEN KUUNTELU
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'AudioVolumeUp' || e.key === 'VolumeUp') {
+            e.preventDefault();
+            handleValueChange();
+        } else if (e.key === 'AudioVolumeDown' || e.key === 'VolumeDown') {
+            e.preventDefault();
+            handleNavigation();
+        }
+    });
+
+    function handleValueChange() {
+        const key = `ex${currentExIdx}_q${currentQIdx}_${focusPerson}`;
+        let currentVal = scores[key] || 0;
+        currentVal = currentVal >= 5 ? 1 : currentVal + 1;
+        scores[key] = currentVal;
+        save();
+    }
+
+    function handleNavigation() {
+        if (focusPerson === 'p1') {
+            focusPerson = 'p2';
         } else {
-            scores[key] = value;
+            focusPerson = 'p1';
+            currentQIdx++;
+            // Jos harjoitus loppuu, vaihda seuraavaan listaan
+            if (currentQIdx >= exercises[currentExIdx].q.length) {
+                currentQIdx = 0;
+                currentExIdx = (currentExIdx + 1) % exercises.length;
+            }
         }
-        localStorage.setItem('parisuhde_data', JSON.stringify(scores));
-        loadExercise(exIdx);
+        render();
     }
 
-    function resetData() {
-        if(confirm("Haluatko varmasti tyhjentää kaikki vastaukset?")) {
-            scores = {}; localStorage.removeItem('parisuhde_data'); loadExercise(currentEx);
-        }
+    function save() {
+        localStorage.setItem('parisuhde_v3', JSON.stringify(scores));
+        render();
     }
 
-    function init() {
-        const menu = document.getElementById('menu');
-        data.forEach((ex, idx) => {
-            const btn = document.createElement('button');
-            btn.innerText = ex.title;
-            btn.onclick = () => loadExercise(idx);
-            btn.id = `nav-btn-${idx}`;
-            menu.appendChild(btn);
-        });
-        loadExercise(0);
-    }
-    init();
+    render();
 </script>
 </body>
 </html>
